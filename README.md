@@ -1,2 +1,2 @@
 # kubernetes-gradle-plugin
-Plugin to deploy charts to k8s clusters by docker image.
+Plugin to deploy charts to kubernetes clusters by docker image.

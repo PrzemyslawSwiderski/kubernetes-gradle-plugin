@@ -1,0 +1,2 @@
+kubeContext: docker-desktop
+dockerRepository: <TO_BE_FILLED>

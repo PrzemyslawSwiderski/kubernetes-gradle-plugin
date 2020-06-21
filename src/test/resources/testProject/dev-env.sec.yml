@@ -1,0 +1,2 @@
+kubeContext: docker-desktop
+dockerRepository: localhost:5000
