@@ -4,7 +4,7 @@ Plugin to deploy application to kubernetes clusters by docker image.
 
 ## Requirements
 * JRE 8 or higher to run Gradle wrapper
-* Docker ~ 19.03.8
+* Docker
 * Kubernetes cluster context available
 
 ## What it does?
