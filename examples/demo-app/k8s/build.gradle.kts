@@ -13,5 +13,5 @@ docker {
 }
 
 dockerRun {
-//    clean = true // remove container if stopped
+    clean = true // remove container if stopped
 }

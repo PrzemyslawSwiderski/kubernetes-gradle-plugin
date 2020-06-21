@@ -4,10 +4,12 @@ import com.palantir.gradle.docker.DockerRunPlugin
 import com.palantir.gradle.docker.PalantirDockerPlugin
 import com.pswidersk.gradle.helm.HelmPlugin
 import com.pswidersk.gradle.helm.HelmTask
+import com.pswidersk.gradle.yamlsecrets.YamlSecretsData
 import com.pswidersk.gradle.yamlsecrets.YamlSecretsPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
+import java.time.Instant
 
 class KubernetesPlugin : Plugin<Project> {
 
@@ -43,14 +45,14 @@ class KubernetesPlugin : Plugin<Project> {
     }
 
     private fun configureDocker(project: Project) = with(project) {
-        val imageName = kubernetesPlugin.dockerImageName.get()
+        val imageName = kubernetesPlugin.dockerImageName
         docker.name = imageName
         dockerRun.name = imageName
         dockerRun.image = imageName
-        envsToDeploy.forEach { env ->
-            val dockerRepo = secrets.get<String>(env, DOCKER_REPO_PROP_NAME)
+        envsToDeploy.forEach { envSecretsData ->
+            val dockerRepo = secrets.get<String>(envSecretsData.secretsName, DOCKER_REPO_PROP_NAME)
             val tag = buildDockerImageTag(this, dockerRepo)
-            docker.tag(env, tag)
+            docker.tag("-${envSecretsData.secretsName}", tag)
         }
     }
 
@@ -61,49 +63,57 @@ class KubernetesPlugin : Plugin<Project> {
         }
     }
 
-    private fun generateHelmTasks(env: String, project: Project) = with(project.tasks) {
+    private fun generateHelmTasks(envSecretsData: YamlSecretsData, project: Project) = with(project.tasks) {
+        val envName = envSecretsData.secretsName
+        val additionalInstallArgs = project.kubernetesPlugin.additionalInstallArgs
         val chartName = project.kubernetesPlugin.deploymentName
         val chartRef = project.kubernetesPlugin.chartRef
-        val kubeContext = project.secrets.get<String>(env, KUBE_CONTEXT_PROP_NAME)
-        val additionalArgs = project.kubernetesPlugin.additionalInstallArgs
+        val kubeContext = project.secrets.get<String>(envName, KUBE_CONTEXT_PROP_NAME)
+        val commonSecrets = project.secrets.getSecretsData("common")
 
-        register("helmTest-$env", HelmTask::class.java) {
-            it.args("test", chartName.get(), "--namespace", "$env-${chartName.get()}")
+        register("helmTest-$envName", HelmTask::class.java) {
+            it.args("test", chartName.get(), "--namespace", "$envName-${chartName.get()}")
         }
 
-        register("helmUpgradeOrInstall-$env", HelmTask::class.java) {
+        register("helmUpgradeOrInstall-$envName", HelmTask::class.java) {
             val installArgs = listOf("upgrade", "--install", chartName.get(), chartRef.get(),
-                    "--namespace", "$env-${chartName.get()}",
+                    "--namespace", "$envName-${chartName.get()}",
                     "--create-namespace", "--kube-context", kubeContext,
-                    "--values", ".$env.sec.yml",
-                    "--set", "dockerImageName=${project.kubernetesPlugin.dockerImageName.get()}",
-                    "--set", "dockerImageVersion=${project.kubernetesPlugin.dockerImageVersion.get()}"
-            ) + additionalArgs.get()
+                    "--values", commonSecrets.propertiesFile,
+                    "--values", envSecretsData.propertiesFile,
+                    "--set", "deployTimeUTC=${Instant.now()}",
+                    "--set", "dockerImageName=${project.kubernetesPlugin.dockerImageName}",
+                    "--set", "dockerImageVersion=${project.kubernetesPlugin.dockerImageVersion}"
+            ) + additionalInstallArgs.get()
             it.args(installArgs)
             it.doFirst {
                 project.logger.quiet("Executing helm with args: $installArgs")
             }
+            if (project.kubernetesPlugin.pushImageBeforeInstall.get())
+                it.dependsOn("dockerPush-${envSecretsData.secretsName}")
         }
 
-        register("helmStatus-$env", HelmTask::class.java) {
-            it.args("status", chartName.get(), "--namespace", "$env-${chartName.get()}")
+        register("helmStatus-$envName", HelmTask::class.java) {
+            it.args("status", chartName.get(), "--namespace", "$envName-${chartName.get()}")
         }
 
-        register("helmLint-$env", HelmTask::class.java) {
-            it.args("lint", chartName.get(), "--namespace", "$env-${chartName.get()}")
+        register("helmLint-$envName", HelmTask::class.java) {
+            it.args("lint", chartName.get(), "--namespace", "$envName-${chartName.get()}")
         }
 
-        register("helmTemplate-$env", HelmTask::class.java) {
+        register("helmTemplate-$envName", HelmTask::class.java) {
             it.args(
-                    "template", chartName.get(), "--namespace", "$env-${chartName.get()}",
-                    "--values", ".$env.sec.yml",
-                    "--set", "dockerImageName=${project.kubernetesPlugin.dockerImageName.get()}",
-                    "--set", "dockerImageVersion=${project.kubernetesPlugin.dockerImageVersion.get()}"
+                    "template", chartName.get(), "--namespace", "$envName-${chartName.get()}",
+                    "--values", commonSecrets.propertiesFile,
+                    "--values", envSecretsData.propertiesFile,
+                    "--set", "deployTimeUTC=${Instant.now()}",
+                    "--set", "dockerImageName=${project.kubernetesPlugin.dockerImageName}",
+                    "--set", "dockerImageVersion=${project.kubernetesPlugin.dockerImageVersion}"
             )
         }
 
-        register("helmUninstall-$env", HelmTask::class.java) {
-            it.args("uninstall", chartName.get(), "--namespace", "$env-${chartName.get()}")
+        register("helmUninstall-$envName", HelmTask::class.java) {
+            it.args("uninstall", chartName.get(), "--namespace", "$envName-${chartName.get()}")
         }
 
     }

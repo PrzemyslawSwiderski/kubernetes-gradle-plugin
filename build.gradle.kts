@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.palantir.gradle.docker:gradle-docker:0.25.0")
-    implementation("com.pswidersk:yaml-secrets-gradle-plugin:1.0.4")
+    implementation("com.pswidersk:yaml-secrets-gradle-plugin:1.0.8")
     implementation("com.pswidersk:helm-gradle-plugin:1.0.4")
 
 
@@ -51,7 +51,7 @@ pluginBundle {
     website = "https://github.com/PrzemyslawSwiderski/kubernetes-gradle-plugin"
     vcsUrl = "https://github.com/PrzemyslawSwiderski/kubernetes-gradle-plugin"
     description = "Plugin to deploy charts to kubernetes clusters by docker image."
-    tags = listOf("kubernetes", "helm", "docker", "yaml-secrets", "envs")
+    tags = listOf("kubernetes", "k8s", "helm", "docker", "yaml-secrets", "envs")
 }
 
 publishing {

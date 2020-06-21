@@ -1,16 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "my-chart.fullname" . }}
+  name: {{ include "chart.fullname" . }}
+  annotations:
+    deployTimeUTC: {{ .Values.deployTimeUTC | quote }}
   labels:
-    {{- include "my-chart.labels" . | nindent 4 }}
+    {{- include "chartCommonLabels" . | nindent 4 }}
+    deployer: {{ .Values.deployer | quote}}
 spec:
 {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
 {{- end }}
   selector:
     matchLabels:
-      {{- include "my-chart.selectorLabels" . | nindent 6 }}
+  {{- include "selectorLabels" . | nindent 6 }}
   template:
     metadata:
     {{- with .Values.podAnnotations }}
@@ -18,13 +21,13 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
-        {{- include "my-chart.selectorLabels" . | nindent 8 }}
+    {{- include "selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "my-chart.serviceAccountName" . }}
+      serviceAccountName: {{ include "serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -32,19 +35,11 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.dockerRepository }}/{{ .Values.dockerImageName }}:{{ .Values.dockerImageVersion | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

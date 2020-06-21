@@ -12,14 +12,16 @@ open class KubernetesPluginExtension @Inject constructor(project: Project,
 
     internal val applicationProject: Project = if (project.parent != null) project.parent!! else project
 
-    internal val dockerImageName: Property<String> = objects.property<String>().convention(applicationProject.name)
+    internal val dockerImageName: String = applicationProject.name
 
-    internal val dockerImageVersion: Property<String> = objects.property<String>().convention(applicationProject.version.toString())
+    internal val dockerImageVersion: String = applicationProject.version.toString()
 
     val chartRef: Property<String> = objects.property<String>().convention("./${applicationProject.name}")
 
     val deploymentName: Property<String> = objects.property<String>().convention(applicationProject.name)
 
     val additionalInstallArgs: ListProperty<String> = objects.listProperty(String::class.java)
+
+    val pushImageBeforeInstall: Property<Boolean> = objects.property<Boolean>().convention(true)
 
 }

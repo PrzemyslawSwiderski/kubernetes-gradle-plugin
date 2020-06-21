@@ -2,7 +2,7 @@ package com.pswidersk.gradle.kubernetes
 
 import com.palantir.gradle.docker.DockerExtension
 import com.palantir.gradle.docker.DockerRunExtension
-import com.pswidersk.gradle.helm.HelmPluginExtension
+import com.pswidersk.gradle.yamlsecrets.YamlSecretsData
 import com.pswidersk.gradle.yamlsecrets.YamlSecretsResolver
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
@@ -34,11 +34,8 @@ internal val Project.docker: DockerExtension
 internal val Project.dockerRun: DockerRunExtension
     get() = extensions.getByType(DockerRunExtension::class.java)
 
-internal val Project.helm: HelmPluginExtension
-    get() = extensions.getByType(HelmPluginExtension::class.java)
-
-internal val Project.envsToDeploy: List<String>
-    get() = secrets.getNames().filter { it.endsWith("-env") }
+internal val Project.envsToDeploy: List<YamlSecretsData>
+    get() = secrets.getNames().filter { it.endsWith("-env") }.map { secrets.getSecretsData(it) }
 
 internal fun checkIfBootJarTaskAvailable(project: Project): Boolean {
     val bootJarTask = project.tasks.findByName(BOOT_JAR_TASK)
@@ -46,8 +43,8 @@ internal fun checkIfBootJarTaskAvailable(project: Project): Boolean {
 }
 
 internal fun buildDockerImageTag(project: Project, dockerRepo: String): String = with(project) {
-    val dockerImageName = kubernetesPlugin.dockerImageName.get()
-    val dockerImageVersion = kubernetesPlugin.dockerImageVersion.get()
+    val dockerImageName = kubernetesPlugin.dockerImageName
+    val dockerImageVersion = kubernetesPlugin.dockerImageVersion
     val repoSep = if (dockerRepo.isNotEmpty()) "/" else ""
     val versionSep = if (dockerImageName.isNotEmpty()) ":" else ""
     return "$dockerRepo$repoSep$dockerImageName$versionSep$dockerImageVersion"
