@@ -2,6 +2,7 @@ package com.pswidersk.gradle.kubernetes
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.jvm.tasks.Jar
 
@@ -14,6 +15,7 @@ open class ExplodeBootJarTask : DefaultTask() {
 
     private val defaultExplodedBootJarDir = project.layout.projectDirectory.dir(project.buildDir.resolve(EXPLODED_JAR_DIR).path)
 
+    @OutputDirectory
     val explodedBootJarDir: DirectoryProperty = project.objects.directoryProperty().convention(defaultExplodedBootJarDir)
 
     @TaskAction
