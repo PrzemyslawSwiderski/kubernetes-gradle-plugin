@@ -72,10 +72,12 @@ class KubernetesPlugin : Plugin<Project> {
         val commonSecrets = project.secrets.getSecretsData("common")
 
         register("helmTest-$envName", HelmTask::class.java) {
+            it.description = "Runs release tests for \"$envName\" environment."
             it.args("test", chartName.get(), "--namespace", "$envName-${chartName.get()}")
         }
 
         register("helmUpgradeOrInstall-$envName", HelmTask::class.java) {
+            it.description = "Display the status of the named release for \"$envName\" environment."
             val installArgs = listOf("upgrade", "--install", chartName.get(), chartRef.get(),
                     "--namespace", "$envName-${chartName.get()}",
                     "--create-namespace", "--kube-context", kubeContext,
@@ -94,14 +96,17 @@ class KubernetesPlugin : Plugin<Project> {
         }
 
         register("helmStatus-$envName", HelmTask::class.java) {
+            it.description = "Display the status of the named release for \"$envName\" environment."
             it.args("status", chartName.get(), "--namespace", "$envName-${chartName.get()}")
         }
 
         register("helmLint-$envName", HelmTask::class.java) {
+            it.description = "Examine a chart for possible issues for \"$envName\" environment."
             it.args("lint", chartName.get(), "--namespace", "$envName-${chartName.get()}")
         }
 
         register("helmTemplate-$envName", HelmTask::class.java) {
+            it.description = "Locally render template for \"$envName\" environment."
             it.args(
                     "template", chartName.get(), "--namespace", "$envName-${chartName.get()}",
                     "--values", commonSecrets.propertiesFile,
@@ -113,6 +118,7 @@ class KubernetesPlugin : Plugin<Project> {
         }
 
         register("helmUninstall-$envName", HelmTask::class.java) {
+            it.description = "Uninstall a release for \"$envName\" environment."
             it.args("uninstall", chartName.get(), "--namespace", "$envName-${chartName.get()}")
         }
 

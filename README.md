@@ -45,4 +45,9 @@ Application will be pushed to a `dockerRepository` specified in a `.dev-env.sec.
 
 Note that kubernetes context must be available in kube config file (`~/.kube/config`).
 
-  
+## Plugin extension properties
+This Plugin can be configured by setting the following values in `kubernetesPlugin {}` block:
+* `chartRef` - sets chart reference where chart files are located. Used in `helmUpgradeOrInstall*` tasks. Default -> application (parent) project name as dir, for example `./demo-app`.
+* `chartName` - sets chart name which will be used to locate deployment in k8s cluster by helm tasks. Default ->  application (parent) project name.
+* `additionalInstallArgs` - additional args which will be passed to a `helmUpgradeOrInstall*` tasks. Default -> empty list.
+* `pushImageBeforeInstall` - boolean property which indicates if docker image should be pushed to repo before deployment. Default -> true.
