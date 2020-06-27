@@ -1,5 +1,6 @@
 package com.pswidersk.gradle.kubernetes
 
+import com.palantir.gradle.docker.DockerComposePlugin
 import com.palantir.gradle.docker.DockerRunPlugin
 import com.palantir.gradle.docker.PalantirDockerPlugin
 import com.pswidersk.gradle.helm.HelmPlugin
@@ -16,8 +17,9 @@ class KubernetesPlugin : Plugin<Project> {
     override fun apply(project: Project) = with(project) {
         val externalPluginsToApply = listOf(
                 BasePlugin::class,
-                DockerRunPlugin::class,
                 PalantirDockerPlugin::class,
+                DockerRunPlugin::class,
+                DockerComposePlugin::class,
                 YamlSecretsPlugin::class,
                 HelmPlugin::class
         )

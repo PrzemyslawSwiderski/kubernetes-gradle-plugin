@@ -13,7 +13,7 @@ class KubernetesPluginTest {
         val project: Project = ProjectBuilder.builder().build()
         project.pluginManager.apply(KubernetesPlugin::class.java)
 
-        assertEquals(7, project.plugins.size)
+        assertEquals(8, project.plugins.size)
     }
 
     @Test
@@ -22,7 +22,7 @@ class KubernetesPluginTest {
         val project: Project = ProjectBuilder.builder().withProjectDir(testProjectPath).build()
         project.pluginManager.apply(KubernetesPlugin::class.java)
 
-        assertEquals(30, project.tasks.size)
+        assertEquals(33, project.tasks.size)
     }
 
 }
