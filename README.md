@@ -51,3 +51,5 @@ This Plugin can be configured by setting the following values in `kubernetesPlug
 * `chartName` - sets chart name which will be used to locate deployment in k8s cluster by helm tasks. Default ->  application (parent) project name.
 * `additionalInstallArgs` - additional args which will be passed to a `helmUpgradeOrInstall*` tasks. Default -> empty list.
 * `pushImageBeforeInstall` - boolean property which indicates if docker image should be pushed to repo before deployment. Default -> true.
+
+## [Changelog](./CHANGELOG.md)
