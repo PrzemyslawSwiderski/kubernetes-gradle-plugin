@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.text.SimpleDateFormat
+import java.util.*
 
 plugins {
     `java-gradle-plugin`
@@ -6,6 +8,12 @@ plugins {
     kotlin("jvm") version "1.3.72"
     id("com.gradle.plugin-publish") version "0.11.0"
     id("net.researchgate.release") version "2.8.1"
+    id("org.jetbrains.changelog") version "0.4.0"
+}
+
+changelog {
+    headerFormat = "[{0}] - {1}"
+    headerArguments = listOf(version, SimpleDateFormat("yyyy-MM-dd").format(Date()))
 }
 
 repositories {
@@ -31,7 +39,7 @@ tasks {
         useJUnitPlatform()
     }
     "afterReleaseBuild"{
-        dependsOn("publish", "publishPlugins")
+        dependsOn("publish", "publishPlugins", "patchChangelog")
     }
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"

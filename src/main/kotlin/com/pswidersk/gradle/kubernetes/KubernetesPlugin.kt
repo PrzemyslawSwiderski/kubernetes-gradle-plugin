@@ -66,22 +66,24 @@ class KubernetesPlugin : Plugin<Project> {
     }
 
     private fun generateHelmTasks(envSecretsData: YamlSecretsData, project: Project) = with(project.tasks) {
-        val envName = envSecretsData.secretsName
+        val releaseName = envSecretsData.secretsName
         val additionalInstallArgs = project.kubernetesPlugin.additionalInstallArgs
-        val chartName = project.kubernetesPlugin.deploymentName
+        val deploymentName = project.kubernetesPlugin.deploymentName
         val chartRef = project.kubernetesPlugin.chartRef
-        val kubeContext = project.secrets.get<String>(envName, KUBE_CONTEXT_PROP_NAME)
+        val kubeContext = project.secrets.get<String>(releaseName, KUBE_CONTEXT_PROP_NAME)
         val commonSecrets = project.secrets.getSecretsData("common")
 
-        register("helmTest-$envName", HelmTask::class.java) {
-            it.description = "Runs release tests for \"$envName\" environment."
-            it.args("test", chartName.get(), "--namespace", "$envName-${chartName.get()}")
+        val namespace = "$releaseName-${deploymentName}"
+
+        register("helmTest-$releaseName", HelmTask::class.java) {
+            it.description = "Runs release tests for \"$releaseName\" environment."
+            it.args("test", releaseName, "--namespace", namespace)
         }
 
-        register("helmUpgradeOrInstall-$envName", HelmTask::class.java) {
-            it.description = "Display the status of the named release for \"$envName\" environment."
-            val installArgs = listOf("upgrade", "--install", chartName.get(), chartRef.get(),
-                    "--namespace", "$envName-${chartName.get()}",
+        register("helmUpgradeOrInstall-$releaseName", HelmTask::class.java) {
+            it.description = "Display the status of the named release for \"$releaseName\" environment."
+            val installArgs = listOf("upgrade", "--install", releaseName, chartRef.get(),
+                    "--namespace", namespace,
                     "--create-namespace", "--kube-context", kubeContext,
                     "--values", commonSecrets.propertiesFile,
                     "--values", envSecretsData.propertiesFile,
@@ -97,20 +99,20 @@ class KubernetesPlugin : Plugin<Project> {
                 it.dependsOn("dockerPush-${envSecretsData.secretsName}")
         }
 
-        register("helmStatus-$envName", HelmTask::class.java) {
-            it.description = "Display the status of the named release for \"$envName\" environment."
-            it.args("status", chartName.get(), "--namespace", "$envName-${chartName.get()}")
+        register("helmStatus-$releaseName", HelmTask::class.java) {
+            it.description = "Display the status of the named release for \"$releaseName\" environment."
+            it.args("status", releaseName, "--namespace", namespace)
         }
 
-        register("helmLint-$envName", HelmTask::class.java) {
-            it.description = "Examine a chart for possible issues for \"$envName\" environment."
-            it.args("lint", chartName.get(), "--namespace", "$envName-${chartName.get()}")
+        register("helmLint-$releaseName", HelmTask::class.java) {
+            it.description = "Examine a chart for possible issues for \"$releaseName\" environment."
+            it.args("lint", releaseName, "--namespace", namespace)
         }
 
-        register("helmTemplate-$envName", HelmTask::class.java) {
-            it.description = "Locally render template for \"$envName\" environment."
+        register("helmTemplate-$releaseName", HelmTask::class.java) {
+            it.description = "Locally render template for \"$releaseName\" environment."
             it.args(
-                    "template", chartName.get(), "--namespace", "$envName-${chartName.get()}",
+                    "template", releaseName, "--namespace", namespace,
                     "--values", commonSecrets.propertiesFile,
                     "--values", envSecretsData.propertiesFile,
                     "--set", "deployTimeUTC=${Instant.now()}",
@@ -119,9 +121,9 @@ class KubernetesPlugin : Plugin<Project> {
             )
         }
 
-        register("helmUninstall-$envName", HelmTask::class.java) {
-            it.description = "Uninstall a release for \"$envName\" environment."
-            it.args("uninstall", chartName.get(), "--namespace", "$envName-${chartName.get()}")
+        register("helmUninstall-$releaseName", HelmTask::class.java) {
+            it.description = "Uninstall a release for \"$releaseName\" environment."
+            it.args("uninstall", releaseName, "--namespace", namespace)
         }
 
     }
