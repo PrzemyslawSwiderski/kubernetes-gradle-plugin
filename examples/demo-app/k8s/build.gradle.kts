@@ -1,6 +1,6 @@
 plugins {
     base
-    id("com.pswidersk.kubernetes-plugin") version "1.0.3"
+    id("com.pswidersk.kubernetes-plugin") version "1.0.4"
 }
 kubernetesPlugin {
     additionalInstallArgs.set(listOf("--atomic"))

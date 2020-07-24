@@ -4,17 +4,10 @@ All notable changes to this project will be documented in this file.
 Please add what was changed under [Unreleased] section before releasing new version.
 
 ## [Unreleased]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
 
 ### Fixed
+- fixed template task (not properly resolved chart ref)
 
-### Security
 ## [1.0.3] - 2020-07-24
 
 ### Fixed
