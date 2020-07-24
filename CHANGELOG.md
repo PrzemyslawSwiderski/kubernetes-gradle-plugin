@@ -4,17 +4,10 @@ All notable changes to this project will be documented in this file.
 Please add what was changed under [Unreleased] section before releasing new version.
 
 ## [Unreleased]
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
 
 ### Fixed
+- install namespace fixed
 
-### Security
 ## [1.0.2] - 2020-07-23
 
 ### Added

@@ -73,7 +73,7 @@ class KubernetesPlugin : Plugin<Project> {
         val kubeContext = project.secrets.get<String>(releaseName, KUBE_CONTEXT_PROP_NAME)
         val commonSecrets = project.secrets.getSecretsData("common")
 
-        val namespace = "$releaseName-${deploymentName}"
+        val namespace = "$releaseName-${deploymentName.get()}"
 
         register("helmTest-$releaseName", HelmTask::class.java) {
             it.description = "Runs release tests for \"$releaseName\" environment."
